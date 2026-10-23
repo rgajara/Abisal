@@ -477,3 +477,210 @@
       restartAnimation(el.answerForm, 'shake');
       el.answerInput.select();
       return;
+    }
+    endRound(ans);
+  }
+
+  function endRound(ans) {
+    if (state.locked) return;
+    state.locked = true;
+    cancelAnimationFrame(state.raf);
+    el.answerInput.readOnly = true;
+
+    const meters = ans ? ans.meters : 0;
+    const tier = ans ? tierFor(meters) : null;
+    if (ans) state.used.add(ans.id);
+    state.results.push({ text: ans ? ans.text : null, meters, tier });
+
+    const from = state.total;
+    state.total += meters;
+
+    const chip = h('li', tier ? `tier-${tier.id}` : 'tier-none');
+    chip.append(h('span', '', ans ? ans.text : t('noAnswer')), h('span', '', `${fmt(meters)} m`));
+    el.answerList.append(chip);
+
+    if (ans) {
+      setFeedback(`${ans.text} · ${tierName(tier)} · +${fmt(meters)} m`, `is-good tier-${tier.id}`);
+      dive(from, state.total, meters, tier);
+    } else {
+      setFeedback(t('timeout'), 'is-bad');
+    }
+
+    setTimeout(() => {
+      if (state.phase !== 'game') return;
+      if (state.round < CONFIG.ROUNDS) startRound(); else finishDive();
+    }, ans ? 1900 : 1400);
+  }
+
+  function dive(from, to, gain, tier) {
+    animateNumber(el.depthValue, from, to, 1200);
+    setDepthVisual(to);
+    const float = h('span', `float-gain tier-${tier.id}`, `+${fmt(gain)} m`);
+    float.addEventListener('animationend', () => float.remove());
+    el.sonar.append(float);
+    restartAnimation(el.sonar, 'is-diving');
+    if (navigator.vibrate) navigator.vibrate(tier.min >= 1200 ? [20, 40, 20] : 25);
+  }
+
+  function finishDive() {
+    state.phase = 'results';
+    document.body.classList.remove('in-game');
+    el.answerInput.blur();
+
+    const total = state.total;
+    const { records, isRecord } = registerResult(total);
+
+    el.resultMeters.textContent = '0';
+    animateNumber(el.resultMeters, 0, total, 1400);
+
+    const zone = zoneFor(total);
+    el.resultZone.textContent = `${zone.name} · ${zone.desc}`;
+
+    const answered = state.results.filter((r) => r.text);
+    const rarity = answered.length ? tierFor(total / CONFIG.ROUNDS) : null;
+    el.resultRarity.textContent = rarity ? t('rarity', { x: tierName(rarity) }) : t('noAnswers');
+    el.resultRarity.className = `rarity-pill ${rarity ? `tier-${rarity.id}` : 'tier-none'}`;
+    el.newRecord.hidden = !isRecord;
+
+    el.summaryList.replaceChildren(...state.results.map((r) => {
+      const li = h('li', r.tier ? `tier-${r.tier.id}` : 'tier-none');
+      const info = h('div');
+      info.append(h('strong', '', r.text || t('noAnswer')), h('span', 'summary__tier', r.tier ? tierName(r.tier) : t('timeUp')));
+      li.append(info, h('span', 'summary__m', `${fmt(r.meters)} m`));
+      return li;
+    }));
+
+    const deepest = state.current.answers
+      .filter((a) => !state.used.has(a.id))
+      .sort((a, b) => b.meters - a.meters)[0];
+    el.deepestHint.textContent = deepest ? t('deepest', { x: deepest.text, m: fmt(deepest.meters) }) : t('allDeep');
+
+    el.resBest.textContent = `${fmt(records.best.meters)} m`;
+    el.resToday.textContent = `${fmt(records.days[state.dateKey]?.best || 0)} m`;
+    el.resGames.textContent = fmt(records.games);
+    el.btnRetry.textContent = t(state.mode === 'daily' ? 'retryDaily' : 'retryRandom');
+
+    showScreen('results');
+    if (isRecord && navigator.vibrate) navigator.vibrate([30, 60, 30, 60, 80]);
+  }
+
+  async function share() {
+    const zone = zoneFor(state.total);
+    const squares = state.results.map((r) => (r.tier ? r.tier.emoji : '⬛')).join('');
+    const mode = state.mode === 'random' ? ` · ${t('modeRandom')}` : '';
+    const text = `Abisal · ${state.dateKey}${mode}\n${state.current.prompt}\n🌊 ${fmt(state.total)} m · ${zone.name}\n${squares}`;
+    const url = location.href.split('#')[0];
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Abisal', text, url });
+      } else {
+        await navigator.clipboard.writeText(`${text}\n${url}`);
+        toast(t('copied'));
+      }
+    } catch (err) {
+      if (err && err.name !== 'AbortError') toast(t('shareFail'));
+    }
+  }
+
+  // ---------- Reloj / medianoche ----------
+  function updateClock() {
+    el.countdown.textContent = hms(msToMidnight());
+    if (state.ready && localDateKey() !== state.dateKey && state.phase !== 'game') {
+      applyDaily();
+      toast(t('newDay'));
+    }
+  }
+
+  function startClock() {
+    updateClock();
+    setInterval(updateClock, 1000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) updateClock(); });
+    window.addEventListener('focus', updateClock);
+  }
+
+  // ---------- Decoración ----------
+  function spawnBubbles() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const count = window.innerWidth < 600 ? 14 : 24;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+      const b = h('span', 'bubble');
+      const size = 4 + Math.random() * 12;
+      b.style.cssText = `left:${Math.random() * 100}%;width:${size}px;height:${size}px;` +
+        `animation-duration:${10 + Math.random() * 14}s;animation-delay:${-Math.random() * 20}s;` +
+        `--drift:${(Math.random() * 40 - 20).toFixed(1)}px;`;
+      frag.append(b);
+    }
+    el.bubbles.append(frag);
+  }
+
+  /** iOS no usa SVG como apple-touch-icon: generamos un PNG 180×180 */
+  function setTouchIcon() {
+    try {
+      const size = 180;
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const x = c.getContext('2d');
+      x.scale(size / 512, size / 512);
+      const bg = x.createLinearGradient(0, 0, 0, 512);
+      bg.addColorStop(0, '#0F2A38'); bg.addColorStop(1, '#05090D');
+      x.fillStyle = bg; x.fillRect(0, 0, 512, 512);
+      const ln = x.createLinearGradient(0, 100, 0, 440);
+      ln.addColorStop(0, '#22E3F2'); ln.addColorStop(1, '#3DFFB4');
+      x.strokeStyle = ln; x.lineCap = 'round'; x.lineJoin = 'round';
+      x.lineWidth = 18; x.beginPath(); x.arc(256, 220, 110, 0, Math.PI * 2); x.stroke();
+      x.globalAlpha = 0.45; x.lineWidth = 10; x.beginPath(); x.arc(256, 220, 62, 0, Math.PI * 2); x.stroke();
+      x.globalAlpha = 1; x.lineWidth = 30;
+      x.beginPath(); x.moveTo(176, 352); x.lineTo(256, 432); x.lineTo(336, 352); x.stroke();
+      [[380, 120, 14, '#9B8CFF'], [410, 170, 8, '#22E3F2'], [120, 140, 10, '#3DFFB4']].forEach(([cx, cy, r, col]) => {
+        x.globalAlpha = 0.75; x.fillStyle = col; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
+      });
+      const link = document.getElementById('apple-icon');
+      if (link) link.href = c.toDataURL('image/png');
+    } catch { /* se queda el SVG */ }
+  }
+
+  function registerSW() {
+    if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+        .catch((err) => console.warn('[Abisal] SW no registrado:', err));
+    });
+  }
+
+  // ---------- Inicio ----------
+  async function init() {
+    spawnBubbles();
+    setTouchIcon();
+    registerSW();
+
+    el.btnDaily.addEventListener('click', () => startDive('daily'));
+    el.btnRandom.addEventListener('click', () => startDive('random'));
+    el.btnRetry.addEventListener('click', () => startDive(state.mode));
+    el.btnHome.addEventListener('click', goHome);
+    el.btnShare.addEventListener('click', share);
+    el.answerForm.addEventListener('submit', onSubmit);
+    el.langToggle.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-lang]');
+      if (b) setLang(b.dataset.lang);
+    });
+
+    setLang(detectLang());
+
+    state.curatedRaw = await loadCurated();
+    state.ready = true;
+    buildPools();
+    applyDaily();
+    el.btnDaily.disabled = false;
+    el.btnRandom.disabled = false;
+    startClock();
+
+    // Aviso de preguntas nuevas descargadas
+    const prev = storage.get(CONFIG.CURATED_COUNT_KEY, 0);
+    const now = state.curatedRaw.length;
+    if (prev && now > prev) toast(t('updated', { n: now - prev }));
+    if (now) storage.set(CONFIG.CURATED_COUNT_KEY, now);
+  }
+
+  init();
+})();
