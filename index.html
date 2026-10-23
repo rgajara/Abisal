@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0A1118">
+  <meta name="description" content="Trivia de rareza offline / Offline rare-answer trivia.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Abisal">
+  <meta name="format-detection" content="telephone=no">
+  <title>Abisal</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" id="apple-icon" href="./icons/icon.svg">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="ocean" aria-hidden="true">
+    <div class="ocean__glow"></div>
+    <div class="bubbles" id="bubbles"></div>
+  </div>
+
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand__dot"></span>ABISAL</div>
+      <div class="topbar__right">
+        <span class="topbar__meta" id="dateLabel"></span>
+        <div class="lang" id="langToggle" role="group" data-i18n-aria="langAria" aria-label="Idioma">
+          <button type="button" data-lang="es" aria-pressed="true">ES</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== INICIO / HOME ===== -->
+    <section class="screen is-active" id="screen-home" aria-labelledby="homeQuestion">
+      <p class="eyebrow"><span data-i18n="daily">Pregunta del día</span> · <span id="homeCategory">—</span></p>
+      <h1 class="question" id="homeQuestion">…</h1>
+
+      <div class="card rules">
+        <p data-i18n-html="rulesIntro"></p>
+        <ul>
+          <li data-i18n-html="rule1"></li>
+          <li data-i18n-html="rule2"></li>
+          <li data-i18n-html="rule3"></li>
+          <li data-i18n-html="rule4"></li>
+        </ul>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat"><span class="stat__label" data-i18n="record">Récord</span><span class="stat__value" id="statBest">0 m</span></div>
+        <div class="stat"><span class="stat__label" data-i18n="today">Hoy</span><span class="stat__value" id="statToday">0 m</span></div>
+        <div class="stat"><span class="stat__label" data-i18n="streak">Racha</span><span class="stat__value" id="statStreak">0</span></div>
+      </div>
+
+      <div class="home-actions">
+        <button class="btn btn--primary" id="btnDaily" data-i18n="startDaily" disabled>Sumergirse ↓</button>
+        <button class="btn btn--secondary" id="btnRandom" data-i18n="startRandom" disabled>Aleatoria 🎲</button>
+      </div>
+      <p class="next-q"><span data-i18n="nextQ">Nueva pregunta en</span> <span id="countdown">--:--:--</span></p>
+      <p class="bank-info" id="bankInfo"></p>
+    </section>
+
+    <!-- ===== JUEGO / GAME ===== -->
+    <section class="screen" id="screen-game" aria-labelledby="gameQuestion">
+      <div class="hud">
+        <span class="hud__round"><span data-i18n="dive">Inmersión</span> <b id="roundNum">1</b>/<b id="roundTotal">3</b></span>
+        <span class="eyebrow" id="gameCategory"></span>
+      </div>
+
+      <div class="timer-row" id="timerRow">
+        <div class="timer"><div class="timer__bar" id="timerBar"></div></div>
+        <span class="timer__text" id="timerText" role="timer">25</span>
+      </div>
+
+      <h2 class="question question--game" id="gameQuestion"></h2>
+
+      <div class="card sonar" id="sonar">
+        <div class="sonar__info">
+          <span class="sonar__zone" id="zoneName"></span>
+          <div class="sonar__depth"><span id="depthValue">0</span><small>m</small></div>
+        </div>
+        <div class="gauge" aria-hidden="true"><div class="gauge__diver" id="gaugeDiver"></div></div>
+      </div>
+
+      <ul class="chips" id="answerList" data-i18n-aria="answersAria"></ul>
+      <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+
+      <form class="answer-form" id="answerForm" autocomplete="off">
+        <input id="answerInput" type="text" inputmode="text" autocapitalize="off" autocorrect="off"
+               spellcheck="false" enterkeyhint="send" maxlength="40"
+               data-i18n-ph="placeholder" data-i18n-aria="answerAria">
+        <button class="btn btn--send" type="submit" data-i18n-aria="send">↓</button>
+      </form>
+    </section>
+
+    <!-- ===== RESULTADOS / RESULTS ===== -->
+    <section class="screen" id="screen-results" aria-labelledby="resultTitle">
+      <p class="eyebrow" id="resultTitle" data-i18n="resultTitle">Resultado</p>
+      <div class="result-depth"><span id="resultMeters">0</span><small>m</small></div>
+      <p class="result-zone" id="resultZone"></p>
+      <div class="result-tags">
+        <span class="rarity-pill" id="resultRarity">—</span>
+        <span class="badge" id="newRecord" data-i18n="newRecord" hidden></span>
+      </div>
+
+      <div class="card">
+        <h3 class="card__title" data-i18n="yourAnswers">Tus respuestas</h3>
+        <ol class="summary" id="summaryList"></ol>
+      </div>
+
+      <p class="card hint" id="deepestHint"></p>
+
+      <div class="stats-row">
+        <div class="stat"><span class="stat__label" data-i18n="record">Récord</span><span class="stat__value" id="resBest">0 m</span></div>
+        <div class="stat"><span class="stat__label" data-i18n="bestToday">Mejor hoy</span><span class="stat__value" id="resToday">0 m</span></div>
+        <div class="stat"><span class="stat__label" data-i18n="games">Partidas</span><span class="stat__value" id="resGames">0</span></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn--primary" id="btnRetry"></button>
+        <div class="actions__row">
+          <button class="btn btn--ghost" id="btnShare" data-i18n="share">Compartir</button>
+          <button class="btn btn--ghost" id="btnHome" data-i18n="home">Inicio</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="./generator.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
