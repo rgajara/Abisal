@@ -1,7 +1,7 @@
 /* ===========================================================
    Abisal · Service Worker (offline, rutas relativas)
    =========================================================== */
-const CACHE_VERSION = 'abisal-v4.0.0';
+const CACHE_VERSION = 'abisal-v5.0.0';
 
 const PRECACHE_URLS = [
   './',
