@@ -1,6 +1,8 @@
 /* ===========================================================
-   Abisal · Trivia de rareza offline (PWA) · v3 · ES / EN
-   7 preguntas por inmersión · una oportunidad por pregunta
+   Abisal · Trivia de rareza offline (PWA) · v5 · ES / EN
+   - 7 preguntas nuevas en cada inmersión (sin repetir)
+   - Respuesta inválida: puedes seguir intentando hasta los 25 s
+   - Historial para repetir inmersiones anteriores
    =========================================================== */
 'use strict';
 
@@ -15,8 +17,10 @@
     DATA_URL: './questions.json',
     STORAGE_KEY: 'abisal.records.v1',
     LANG_KEY: 'abisal.lang',
-    RECENT_KEY: 'abisal.recent',
+    PLAYED_KEY: 'abisal.played',
+    HISTORY_KEY: 'abisal.history',
     CURATED_COUNT_KEY: 'abisal.curatedCount',
+    HISTORY_MAX: 60,
   };
 
   // ---------- Textos ES / EN ----------
@@ -25,29 +29,28 @@
       locale: 'es-ES',
       docTitle: 'Abisal · Trivia de rareza',
       langAria: 'Idioma',
-      daily: 'Reto del día',
-      homeTitle: '¿Hasta dónde llegarás hoy?',
-      rulesIntro: 'Da una respuesta <strong>correcta</strong>, pero lo más <strong>rara</strong> posible. Cuanto más inusual, más profundo desciendes.',
-      rule1: '<b>7</b> preguntas distintas, <b>25 s</b> cada una',
-      rule2: '<b>Una sola oportunidad</b> por pregunta: piensa bien antes de enviar',
-      rule3: 'Respuesta inválida o fuera de tiempo = <b>0 m</b>',
-      rule4: 'Muchas preguntas aceptan respuestas en español o inglés',
+      newDive: 'Nueva inmersión',
+      homeTitle: '¿Hasta dónde llegarás?',
       record: 'Récord', today: 'Hoy', streak: 'Racha', bestToday: 'Mejor hoy', games: 'Partidas',
-      startDaily: 'Sumergirse ↓', startRandom: 'Aleatoria 🎲',
-      nextQ: 'Nuevo reto en', bank: '{n} preguntas en el banco',
+      startDive: 'Sumergirse ↓', history: 'Inmersiones anteriores',
+      bank: '{n} preguntas nuevas por descubrir',
       dive: 'Pregunta', placeholder: 'Tu respuesta más rara…', answerAria: 'Tu respuesta', send: 'Enviar respuesta', progressAria: 'Progreso',
+      invalid: '«{x}» no es válida. ¡Sigue intentando!',
       next: 'Siguiente →', seeResults: 'Ver resultado 🌊',
-      verdictGood: '✓ {x} · {tier} · +{m} m', verdictBad: '✗ «{x}» no es válida · 0 m', verdictTime: '⏱ Se acabó el tiempo · 0 m',
+      verdictGood: '✓ {x} · {tier} · +{m} m', verdictTime: '⏱ Se acabó el tiempo · 0 m',
       revealBest: '🔦 Lo más profundo era «{x}» ({m} m)', revealTop: '🏆 ¡Era la respuesta más profunda posible!',
       resultTitle: 'Resultado de la inmersión', yourAnswers: 'Tus respuestas',
-      retryDaily: 'Repetir el reto', retryRandom: 'Otra ronda aleatoria 🎲', share: 'Compartir', home: 'Inicio',
+      retryNew: 'Nueva inmersión ↓', retryReplay: 'Repetir otra vez', share: 'Compartir', home: 'Inicio',
       newRecord: '★ Nuevo récord personal',
-      noAnswer: 'Sin respuesta', timeUp: 'Tiempo agotado', invalidTag: 'No válida',
+      noAnswer: 'Sin respuesta válida', timeUp: 'Tiempo agotado',
       rarity: 'Rareza: {x}', noAnswers: 'Sin respuestas válidas',
       deepestYou: '🔦 Tu respuesta más profunda: «{x}» ({m} m).', noneValid: '🔦 Esta vez no hubo respuestas válidas. ¡Inténtalo de nuevo!',
       copied: 'Resultado copiado al portapapeles', shareFail: 'No se pudo compartir',
-      newDay: '🌊 ¡Nuevo reto del día!', updated: '✨ {n} preguntas nuevas descargadas',
-      modeDaily: 'Reto diario', modeRandom: 'Aleatoria',
+      updated: '✨ {n} preguntas nuevas descargadas',
+      bankReset: '🔄 ¡Jugaste todo el banco! Las preguntas vuelven a empezar.',
+      modeNew: 'Inmersión #{n}', modeReplay: 'Repetición #{n}',
+      historyEmpty: 'Aún no tienes inmersiones guardadas. ¡Sumérgete!', back: '← Volver',
+      missing: 'No se encontraron las preguntas de esa inmersión.',
       tiers: { comun: 'Común', poco: 'Poco común', rara: 'Rara', muyrara: 'Muy rara', legendaria: 'Legendaria' },
       zones: [
         ['Zona Hadal', 'Las fosas más profundas. Pocos llegan aquí.'],
@@ -61,29 +64,28 @@
       locale: 'en-US',
       docTitle: 'Abisal · Rare-answer trivia',
       langAria: 'Language',
-      daily: 'Daily challenge',
-      homeTitle: 'How deep will you go today?',
-      rulesIntro: 'Give a <strong>correct</strong> answer, but as <strong>rare</strong> as possible. The more unusual, the deeper you dive.',
-      rule1: '<b>7</b> different questions, <b>25 s</b> each',
-      rule2: '<b>One chance only</b> per question: think before you send',
-      rule3: 'Invalid answer or time out = <b>0 m</b>',
-      rule4: 'Many questions accept answers in Spanish or English',
+      newDive: 'New dive',
+      homeTitle: 'How deep will you go?',
       record: 'Best', today: 'Today', streak: 'Streak', bestToday: 'Best today', games: 'Games',
-      startDaily: 'Dive in ↓', startRandom: 'Random 🎲',
-      nextQ: 'New challenge in', bank: '{n} questions in the bank',
+      startDive: 'Dive in ↓', history: 'Past dives',
+      bank: '{n} new questions to discover',
       dive: 'Question', placeholder: 'Your rarest answer…', answerAria: 'Your answer', send: 'Send answer', progressAria: 'Progress',
+      invalid: '“{x}” is not valid. Keep trying!',
       next: 'Next →', seeResults: 'See result 🌊',
-      verdictGood: '✓ {x} · {tier} · +{m} m', verdictBad: '✗ “{x}” is not valid · 0 m', verdictTime: "⏱ Time's up · 0 m",
+      verdictGood: '✓ {x} · {tier} · +{m} m', verdictTime: "⏱ Time's up · 0 m",
       revealBest: '🔦 The deepest answer was “{x}” ({m} m)', revealTop: '🏆 That was the deepest answer possible!',
       resultTitle: 'Dive result', yourAnswers: 'Your answers',
-      retryDaily: 'Replay the challenge', retryRandom: 'Another random round 🎲', share: 'Share', home: 'Home',
+      retryNew: 'New dive ↓', retryReplay: 'Replay again', share: 'Share', home: 'Home',
       newRecord: '★ New personal best',
-      noAnswer: 'No answer', timeUp: 'Time ran out', invalidTag: 'Not valid',
+      noAnswer: 'No valid answer', timeUp: 'Time ran out',
       rarity: 'Rarity: {x}', noAnswers: 'No valid answers',
       deepestYou: '🔦 Your deepest answer: “{x}” ({m} m).', noneValid: '🔦 No valid answers this time. Try again!',
       copied: 'Result copied to clipboard', shareFail: 'Could not share',
-      newDay: '🌊 New daily challenge!', updated: '✨ {n} new questions downloaded',
-      modeDaily: 'Daily', modeRandom: 'Random',
+      updated: '✨ {n} new questions downloaded',
+      bankReset: '🔄 You played the whole bank! Questions start over.',
+      modeNew: 'Dive #{n}', modeReplay: 'Replay #{n}',
+      historyEmpty: 'No saved dives yet. Dive in!', back: '← Back',
+      missing: "Couldn't find that dive's questions.",
       tiers: { comun: 'Common', poco: 'Uncommon', rara: 'Rare', muyrara: 'Very rare', legendaria: 'Legendary' },
       zones: [
         ['Hadal Zone', 'The deepest trenches. Few make it here.'],
@@ -95,7 +97,6 @@
     },
   };
 
-  // Rareza por respuesta (máx. ~1570 m por pregunta)
   const TIERS = [
     { id: 'legendaria', min: 1050, emoji: '🟨' },
     { id: 'muyrara',    min: 520,  emoji: '🟪' },
@@ -109,13 +110,13 @@
   const $ = (id) => document.getElementById(id);
   const el = {};
   [
-    'dateLabel', 'langToggle', 'homeCats', 'statBest', 'statToday', 'statStreak',
-    'btnDaily', 'btnRandom', 'countdown', 'bankInfo',
+    'dateLabel', 'langToggle', 'homeCats', 'statBest', 'statToday', 'statStreak', 'btnPlay', 'btnHistory', 'bankInfo',
     'roundNum', 'roundTotal', 'timerRow', 'timerBar', 'timerText', 'gameCategory', 'gameQuestion',
-    'sonar', 'zoneName', 'depthValue', 'gaugeDiver', 'answerList', 'answerForm', 'answerInput',
+    'sonar', 'zoneName', 'depthValue', 'gaugeDiver', 'answerList', 'answerForm', 'answerInput', 'feedback',
     'reveal', 'revealVerdict', 'revealBest', 'btnNext',
     'resultMeters', 'resultZone', 'resultRarity', 'newRecord', 'summaryList', 'deepestHint',
-    'resBest', 'resToday', 'resGames', 'btnRetry', 'btnShare', 'btnHome', 'toast', 'bubbles',
+    'resBest', 'resToday', 'resGames', 'btnRetry', 'btnShare', 'btnHome',
+    'historyList', 'historyEmpty', 'btnHistoryBack', 'toast', 'bubbles',
   ].forEach((id) => { el[id] = $(id); });
 
   // ---------- Estado ----------
@@ -124,11 +125,12 @@
     ready: false,
     curatedRaw: [],
     pool: { gen: [], curated: [] },
-    dailySet: [],
+    nextSet: null,
     set: [],
+    mode: 'new',          // new | replay
+    diveNumber: 1,
+    replayEntry: null,
     current: null,
-    mode: 'daily',
-    dateKey: '',
     phase: 'home',
     round: 0,
     total: 0,
@@ -151,15 +153,8 @@
   // ---------- Utilidades ----------
   const pad = (n) => String(n).padStart(2, '0');
   const fmt = (n) => new Intl.NumberFormat(L().locale).format(Math.round(n));
-
   const localDateKey = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const localDayNumber = (d = new Date()) => Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
   const yesterdayKey = () => { const d = new Date(); d.setDate(d.getDate() - 1); return localDateKey(d); };
-  const msToMidnight = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1) - n; };
-  const hms = (ms) => {
-    const s = Math.max(0, Math.floor(ms / 1000));
-    return [s / 3600, (s % 3600) / 60, s % 60].map((v) => pad(Math.floor(v))).join(':');
-  };
 
   function h(tag, className, text) {
     const node = document.createElement(tag);
@@ -183,7 +178,7 @@
     el.toast.textContent = msg;
     el.toast.classList.add('is-visible');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.toast.classList.remove('is-visible'), 2400);
+    toastTimer = setTimeout(() => el.toast.classList.remove('is-visible'), 2600);
   }
 
   function restartAnimation(node, cls) {
@@ -218,16 +213,14 @@
     const base = exact[0];
     if (!base) return null;
 
-    // 1) coincidencia exacta (incluye plurales)
     for (const ans of q.answers) if (exact.some((k) => ans.keys.has(k))) return ans;
 
-    // 2) femenino → masculino (doctora → doctor)
     if (base.length > 4 && base.endsWith('a')) {
       const variants = [base.slice(0, -1), base.slice(0, -1) + 'o'];
       for (const ans of q.answers) if (variants.some((k) => ans.keys.has(k))) return ans;
     }
 
-    // 3) errores de tipeo: solo palabras de 6+ letras, mismas 2 primeras letras
+    // Errores de tipeo: solo 6+ letras y mismas 2 primeras letras
     if (base.length < 6) return null;
     const tol = base.length >= 10 ? 2 : 1;
     let best = null; let bestD = Infinity;
@@ -281,9 +274,8 @@
     };
   }
 
-  function buildPools() {
-    const lang = state.lang;
-    state.pool = {
+  function poolFor(lang) {
+    return {
       gen: G.buildPool(lang),
       curated: state.curatedRaw
         .filter((q) => q && q.id && q.prompt && Array.isArray(q.answers))
@@ -292,28 +284,54 @@
     };
   }
 
-  const loadRecent = () => storage.get(CONFIG.RECENT_KEY, []);
-  function pushRecent(ids) {
-    storage.set(CONFIG.RECENT_KEY, [...ids, ...loadRecent().filter((x) => !ids.includes(x))].slice(0, 120));
+  // ---------- Preguntas ya jugadas ----------
+  const loadPlayed = () => storage.get(CONFIG.PLAYED_KEY, []);
+  function markPlayed(ids) {
+    storage.set(CONFIG.PLAYED_KEY, [...new Set([...loadPlayed(), ...ids])]);
   }
 
-  /** Elige 7 preguntas distintas, intentando no repetir categoría */
-  function pickSet(mode) {
+  /** 7 preguntas que nunca has jugado, de categorías distintas si es posible */
+  function pickNewSet() {
     const { gen, curated } = state.pool;
-    const r = mode === 'daily' ? G.rng(localDayNumber() * 7919 + 13) : Math.random;
-    const recent = mode === 'random' ? new Set(loadRecent()) : new Set();
-    const pCurated = curated.length ? 0.35 : 0;
-    const chosen = []; const ids = new Set(); const cats = new Set();
+    let played = new Set(loadPlayed());
+    let cur = curated.filter((q) => !played.has(q.id));
+    let gn = gen.filter((q) => !played.has(q.id));
 
+    if (cur.length + gn.length < CONFIG.ROUNDS) {
+      storage.set(CONFIG.PLAYED_KEY, []);
+      played = new Set();
+      cur = curated.slice();
+      gn = gen.slice();
+      if (state.ready) toast(t('bankReset'));
+    }
+
+    const pCurated = cur.length ? 0.35 : 0;
+    const chosen = []; const ids = new Set(); const cats = new Set();
     for (let i = 0; i < 3000 && chosen.length < CONFIG.ROUNDS; i++) {
-      const list = r() < pCurated ? curated : gen;
-      const q = list[Math.floor(r() * list.length)];
+      const useCur = (Math.random() < pCurated && cur.length) || !gn.length;
+      const list = useCur ? cur : gn;
+      const q = list[Math.floor(Math.random() * list.length)];
       if (!q || ids.has(q.id)) continue;
-      if (i < 2000 && recent.has(q.id)) continue;
-      if (i < 1000 && cats.has(q.category)) continue;
+      if (i < 1500 && cats.has(q.category)) continue;
       chosen.push(q); ids.add(q.id); cats.add(q.category);
     }
     return chosen;
+  }
+
+  function unplayedCount() {
+    const played = new Set(loadPlayed());
+    return [...state.pool.gen, ...state.pool.curated].filter((q) => !played.has(q.id)).length;
+  }
+
+  // ---------- Historial ----------
+  const loadHistory = () => storage.get(CONFIG.HISTORY_KEY, []);
+  const saveHistory = (list) => storage.set(CONFIG.HISTORY_KEY, list.slice(0, CONFIG.HISTORY_MAX));
+
+  /** Reconstruye las preguntas de una inmersión en su idioma original */
+  function questionsFor(entry) {
+    const pool = entry.lang === state.lang ? state.pool : poolFor(entry.lang);
+    const map = new Map([...pool.gen, ...pool.curated].map((q) => [q.id, q]));
+    return entry.ids.map((id) => map.get(id)).filter(Boolean);
   }
 
   // ---------- Récords ----------
@@ -323,21 +341,19 @@
 
   function registerResult(total) {
     const r = loadRecords();
-    const today = state.dateKey;
+    const today = localDateKey();
     r.games += 1;
 
-    if (state.mode === 'daily') {
-      if (r.lastPlayed !== today) {
-        r.streak = r.lastPlayed === yesterdayKey() ? r.streak + 1 : 1;
-        r.lastPlayed = today;
-      }
-      const day = r.days[today] || { best: 0, plays: 0 };
-      day.plays += 1;
-      day.best = Math.max(day.best, total);
-      r.days[today] = day;
-      const keys = Object.keys(r.days).sort();
-      keys.slice(0, Math.max(0, keys.length - 90)).forEach((k) => delete r.days[k]);
+    if (r.lastPlayed !== today) {
+      r.streak = r.lastPlayed === yesterdayKey() ? r.streak + 1 : 1;
+      r.lastPlayed = today;
     }
+    const day = r.days[today] || { best: 0, plays: 0 };
+    day.plays += 1;
+    day.best = Math.max(day.best, total);
+    r.days[today] = day;
+    const keys = Object.keys(r.days).sort();
+    keys.slice(0, Math.max(0, keys.length - 90)).forEach((k) => delete r.days[k]);
 
     const isRecord = total > 0 && total > r.best.meters;
     if (isRecord) r.best = { meters: total, date: today };
@@ -368,11 +384,11 @@
     state.lang = I18N[lang] ? lang : 'es';
     storage.set(CONFIG.LANG_KEY, state.lang);
     applyStaticTexts();
-    if (state.ready) {
-      buildPools();
-      applyDaily();
-      if (state.phase === 'results') goHome();
-    }
+    if (!state.ready) return;
+    state.pool = poolFor(state.lang);
+    state.nextSet = null;
+    if (state.phase === 'history') renderHistory();
+    else goHome();
   }
 
   // ---------- Pantallas ----------
@@ -391,20 +407,15 @@
   }
 
   function renderHome() {
-    el.homeCats.textContent = [...new Set(state.dailySet.map((q) => q.category))].join(' · ');
+    if (!state.nextSet) state.nextSet = pickNewSet();
+    el.homeCats.textContent = [...new Set(state.nextSet.map((q) => q.category))].join(' · ');
     el.dateLabel.textContent = new Date().toLocaleDateString(L().locale, { weekday: 'short', day: 'numeric', month: 'short' });
 
     const r = loadRecords();
     el.statBest.textContent = `${fmt(r.best.meters)} m`;
-    el.statToday.textContent = `${fmt(r.days[state.dateKey]?.best || 0)} m`;
+    el.statToday.textContent = `${fmt(r.days[localDateKey()]?.best || 0)} m`;
     el.statStreak.textContent = currentStreak(r);
-    el.bankInfo.textContent = t('bank', { n: fmt(state.pool.gen.length + state.pool.curated.length) });
-  }
-
-  function applyDaily() {
-    state.dateKey = localDateKey();
-    state.dailySet = pickSet('daily');
-    renderHome();
+    el.bankInfo.textContent = t('bank', { n: fmt(unplayedCount()) });
   }
 
   function goHome() {
@@ -414,20 +425,58 @@
     showScreen('home');
   }
 
+  function renderHistory() {
+    const list = loadHistory();
+    el.historyEmpty.hidden = list.length > 0;
+    el.historyList.replaceChildren(...list.map((entry) => {
+      const li = h('li');
+      const btn = h('button', 'hist-item');
+      btn.type = 'button';
+      const info = h('div', 'hist-info');
+      const when = new Date(entry.ts).toLocaleString(L().locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      info.append(h('strong', '', when), h('span', '', (entry.cats || []).join(' · ')));
+      btn.append(h('span', 'hist-n', `#${entry.n}`), info, h('span', 'hist-m', `${fmt(entry.best || entry.total || 0)} m`));
+      btn.addEventListener('click', () => startReplay(entry));
+      li.append(btn);
+      return li;
+    }));
+  }
+
+  function openHistory() {
+    state.phase = 'history';
+    renderHistory();
+    showScreen('history');
+  }
+
   // ---------- Juego ----------
-  function startDive(mode) {
+  function startNew() {
     if (!state.ready) return;
-    if (localDateKey() !== state.dateKey) applyDaily();
+    const set = state.nextSet && state.nextSet.length ? state.nextSet : pickNewSet();
+    state.nextSet = null;
+    markPlayed(set.map((q) => q.id));
+    state.mode = 'new';
+    state.replayEntry = null;
+    state.diveNumber = (loadHistory()[0]?.n || 0) + 1;
+    begin(set);
+  }
 
-    state.mode = mode;
-    state.set = mode === 'daily' ? state.dailySet : pickSet('random');
-    if (mode === 'random') pushRecent(state.set.map((q) => q.id));
+  function startReplay(entry) {
+    if (!state.ready || !entry) return;
+    const set = questionsFor(entry);
+    if (!set.length) { toast(t('missing')); return; }
+    state.mode = 'replay';
+    state.replayEntry = entry;
+    state.diveNumber = entry.n;
+    begin(set);
+  }
 
+  function begin(set) {
+    state.set = set;
     Object.assign(state, { phase: 'game', round: 0, total: 0, results: [], locked: false });
 
-    el.roundTotal.textContent = state.set.length;
+    el.roundTotal.textContent = set.length;
     el.depthValue.textContent = '0';
-    el.answerList.replaceChildren(...state.set.map(() => h('li', 'dot')));
+    el.answerList.replaceChildren(...set.map(() => h('li', 'dot')));
     setDepthVisual(0);
     showScreen('game');
 
@@ -440,8 +489,9 @@
     state.current = state.set[state.round - 1];
     state.locked = false;
 
+    const label = t(state.mode === 'new' ? 'modeNew' : 'modeReplay', { n: state.diveNumber });
     el.roundNum.textContent = state.round;
-    el.gameCategory.textContent = `${t(state.mode === 'daily' ? 'modeDaily' : 'modeRandom')} · ${state.current.category}`;
+    el.gameCategory.textContent = `${label} · ${state.current.category}`;
     el.gameQuestion.textContent = state.current.prompt;
     [...el.answerList.children].forEach((d, i) => d.classList.toggle('is-current', i === state.round - 1));
 
@@ -450,6 +500,7 @@
     el.answerForm.hidden = false;
     el.btnNext.hidden = true;
     el.reveal.hidden = true;
+    setFeedback('');
 
     state.deadline = performance.now() + CONFIG.ROUND_SECONDS * 1000;
     cancelAnimationFrame(state.raf);
@@ -461,8 +512,12 @@
     el.timerBar.style.transform = `scaleX(${left / (CONFIG.ROUND_SECONDS * 1000)})`;
     el.timerText.textContent = Math.ceil(left / 1000);
     el.timerRow.classList.toggle('is-danger', left <= CONFIG.DANGER_SECONDS * 1000);
-    if (left <= 0) { endRound(null, ''); return; }
+    if (left <= 0) { endRound(null); return; }
     state.raf = requestAnimationFrame(tickTimer);
+  }
+
+  function setFeedback(text) {
+    el.feedback.textContent = text;
   }
 
   function onSubmit(e) {
@@ -470,21 +525,31 @@
     if (state.phase !== 'game' || state.locked) return;
     const raw = el.answerInput.value.trim();
     if (!raw) return;
-    endRound(findAnswer(state.current, raw), raw);
+
+    const ans = findAnswer(state.current, raw);
+    if (!ans) {
+      // Inválida: el reloj sigue corriendo y puedes intentar otra
+      setFeedback(t('invalid', { x: raw }));
+      restartAnimation(el.answerForm, 'shake');
+      el.answerInput.select();
+      return;
+    }
+    endRound(ans);
   }
 
-  /** Una sola oportunidad: válida o no, la pregunta se cierra */
-  function endRound(ans, raw) {
+  /** Se cierra con una respuesta válida o cuando se acaba el tiempo */
+  function endRound(ans) {
     if (state.locked) return;
     state.locked = true;
     cancelAnimationFrame(state.raf);
     el.answerInput.readOnly = true;
     el.answerInput.blur();
+    setFeedback('');
 
     const meters = ans ? ans.meters : 0;
     const tier = ans ? tierFor(meters) : null;
-    const status = ans ? 'ok' : (raw ? 'bad' : 'time');
-    state.results.push({ prompt: state.current.prompt, text: ans ? ans.text : null, raw, meters, tier, status });
+    const status = ans ? 'ok' : 'time';
+    state.results.push({ id: state.current.id, prompt: state.current.prompt, text: ans ? ans.text : null, meters, tier, status });
 
     const from = state.total;
     state.total += meters;
@@ -492,18 +557,15 @@
     const dot = el.answerList.children[state.round - 1];
     if (dot) dot.className = `dot ${tier ? `tier-${tier.id}` : 'tier-none'}`;
 
-    // Veredicto
     if (status === 'ok') {
       el.revealVerdict.textContent = t('verdictGood', { x: ans.text, tier: tierName(tier), m: fmt(meters) });
       el.revealVerdict.className = `reveal__verdict is-good tier-${tier.id}`;
       dive(from, state.total, meters, tier);
     } else {
-      el.revealVerdict.textContent = status === 'bad' ? t('verdictBad', { x: raw }) : t('verdictTime');
+      el.revealVerdict.textContent = t('verdictTime');
       el.revealVerdict.className = 'reveal__verdict is-bad';
-      restartAnimation(el.answerForm, 'shake');
     }
 
-    // La respuesta más profunda posible
     const deepest = state.current.answers.reduce((a, b) => (b.meters > a.meters ? b : a));
     el.revealBest.textContent = ans && ans.id === deepest.id
       ? t('revealTop')
@@ -544,6 +606,24 @@
     const total = state.total;
     const { records, isRecord } = registerResult(total);
 
+    // Guardar en el historial
+    const history = loadHistory();
+    if (state.mode === 'new') {
+      history.unshift({
+        n: state.diveNumber,
+        ts: Date.now(),
+        lang: state.lang,
+        ids: state.set.map((q) => q.id),
+        cats: [...new Set(state.set.map((q) => q.category))],
+        total,
+        best: total,
+      });
+    } else if (state.replayEntry) {
+      const entry = history.find((e) => e.n === state.replayEntry.n);
+      if (entry) entry.best = Math.max(entry.best || 0, total);
+    }
+    saveHistory(history);
+
     el.resultMeters.textContent = '0';
     animateNumber(el.resultMeters, 0, total, 1400);
 
@@ -559,9 +639,11 @@
     el.summaryList.replaceChildren(...state.results.map((r) => {
       const li = h('li', r.tier ? `tier-${r.tier.id}` : 'tier-none');
       const info = h('div');
-      const label = r.status === 'ok' ? r.text : (r.status === 'bad' ? `«${r.raw}»` : t('noAnswer'));
-      const tag = r.status === 'ok' ? tierName(r.tier) : (r.status === 'bad' ? t('invalidTag') : t('timeUp'));
-      info.append(h('strong', '', label), h('span', 'summary__q', r.prompt), h('span', 'summary__tier', tag));
+      info.append(
+        h('strong', '', r.status === 'ok' ? r.text : t('noAnswer')),
+        h('span', 'summary__q', r.prompt),
+        h('span', 'summary__tier', r.status === 'ok' ? tierName(r.tier) : t('timeUp')),
+      );
       li.append(info, h('span', 'summary__m', `${fmt(r.meters)} m`));
       return li;
     }));
@@ -570,9 +652,9 @@
     el.deepestHint.textContent = best ? t('deepestYou', { x: best.text, m: fmt(best.meters) }) : t('noneValid');
 
     el.resBest.textContent = `${fmt(records.best.meters)} m`;
-    el.resToday.textContent = `${fmt(records.days[state.dateKey]?.best || 0)} m`;
+    el.resToday.textContent = `${fmt(records.days[localDateKey()]?.best || 0)} m`;
     el.resGames.textContent = fmt(records.games);
-    el.btnRetry.textContent = t(state.mode === 'daily' ? 'retryDaily' : 'retryRandom');
+    el.btnRetry.textContent = t(state.mode === 'new' ? 'retryNew' : 'retryReplay');
 
     showScreen('results');
     if (isRecord && navigator.vibrate) navigator.vibrate([30, 60, 30, 60, 80]);
@@ -581,8 +663,8 @@
   async function share() {
     const zone = zoneFor(state.total);
     const squares = state.results.map((r) => (r.tier ? r.tier.emoji : '⬛')).join('');
-    const mode = state.mode === 'random' ? t('modeRandom') : t('modeDaily');
-    const text = `Abisal · ${state.dateKey} · ${mode}\n🌊 ${fmt(state.total)} m · ${zone.name}\n${squares}`;
+    const label = t(state.mode === 'new' ? 'modeNew' : 'modeReplay', { n: state.diveNumber });
+    const text = `Abisal · ${label}\n🌊 ${fmt(state.total)} m · ${zone.name}\n${squares}`;
     const url = location.href.split('#')[0];
     try {
       if (navigator.share) {
@@ -594,22 +676,6 @@
     } catch (err) {
       if (err && err.name !== 'AbortError') toast(t('shareFail'));
     }
-  }
-
-  // ---------- Reloj / medianoche ----------
-  function updateClock() {
-    el.countdown.textContent = hms(msToMidnight());
-    if (state.ready && localDateKey() !== state.dateKey && state.phase !== 'game') {
-      applyDaily();
-      toast(t('newDay'));
-    }
-  }
-
-  function startClock() {
-    updateClock();
-    setInterval(updateClock, 1000);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) updateClock(); });
-    window.addEventListener('focus', updateClock);
   }
 
   // ---------- Decoración ----------
@@ -667,9 +733,10 @@
     setTouchIcon();
     registerSW();
 
-    el.btnDaily.addEventListener('click', () => startDive('daily'));
-    el.btnRandom.addEventListener('click', () => startDive('random'));
-    el.btnRetry.addEventListener('click', () => startDive(state.mode));
+    el.btnPlay.addEventListener('click', startNew);
+    el.btnHistory.addEventListener('click', openHistory);
+    el.btnHistoryBack.addEventListener('click', goHome);
+    el.btnRetry.addEventListener('click', () => (state.mode === 'new' ? startNew() : startReplay(state.replayEntry)));
     el.btnNext.addEventListener('click', nextStep);
     el.btnHome.addEventListener('click', goHome);
     el.btnShare.addEventListener('click', share);
@@ -678,7 +745,6 @@
       const b = e.target.closest('button[data-lang]');
       if (b) setLang(b.dataset.lang);
     });
-    // Enter para pasar a la siguiente pregunta
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && state.phase === 'game' && state.locked && !el.btnNext.hidden) {
         e.preventDefault();
@@ -689,12 +755,11 @@
     setLang(detectLang());
 
     state.curatedRaw = await loadCurated();
+    state.pool = poolFor(state.lang);
     state.ready = true;
-    buildPools();
-    applyDaily();
-    el.btnDaily.disabled = false;
-    el.btnRandom.disabled = false;
-    startClock();
+    renderHome();
+    el.btnPlay.disabled = false;
+    el.btnHistory.disabled = false;
 
     const prev = storage.get(CONFIG.CURATED_COUNT_KEY, 0);
     const now = state.curatedRaw.length;
