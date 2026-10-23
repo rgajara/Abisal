@@ -1,16 +1,14 @@
 /* ===========================================================
    Abisal · Service Worker (offline, rutas relativas)
-   - App: stale-while-revalidate
-   - questions.json: network-first (recibe preguntas nuevas)
-   Cambia CACHE_VERSION en cada despliegue de código.
    =========================================================== */
-const CACHE_VERSION = 'abisal-v3.0.0';
+const CACHE_VERSION = 'abisal-v4.0.0';
 
 const PRECACHE_URLS = [
   './',
   './index.html',
   './styles.css',
   './generator.js',
+  './scene.js',
   './app.js',
   './questions.json',
   './manifest.json',
