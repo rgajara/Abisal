@@ -387,6 +387,7 @@
     document.documentElement.style.setProperty('--depth', ratio.toFixed(3));
     el.gaugeDiver.style.top = `${ratio * 100}%`;
     el.zoneName.textContent = zoneFor(meters).name;
+    if (window.AbisalScene) window.AbisalScene.setDepth(meters);
   }
 
   function renderHome() {
@@ -532,6 +533,7 @@
     float.addEventListener('animationend', () => float.remove());
     el.sonar.append(float);
     restartAnimation(el.sonar, 'is-diving');
+    if (window.AbisalScene) window.AbisalScene.dive(tier.id);
     if (navigator.vibrate) navigator.vibrate(tier.min >= 520 ? [20, 40, 20] : 25);
   }
 
