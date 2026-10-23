@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0A1118">
+  <meta name="theme-color" content="#141a38">
   <meta name="description" content="Trivia de rareza offline / Offline rare-answer trivia.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -17,9 +17,18 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="ocean" aria-hidden="true">
-    <div class="ocean__glow"></div>
+  <!-- ===== ESCENA (fondo animado) ===== -->
+  <div class="scene" id="scene" aria-hidden="true">
+    <div class="world" id="world"></div>
+    <div class="snow" id="snow"></div>
     <div class="bubbles" id="bubbles"></div>
+    <div class="sub" id="sub">
+      <div class="sub__light"></div>
+      <div class="sub__tilt"><div class="sub__bob" id="subSprite"></div></div>
+    </div>
+    <div class="marker"></div>
+    <div class="vignette"></div>
+    <div class="scanlines"></div>
   </div>
 
   <main class="app">
@@ -36,9 +45,20 @@
 
     <!-- ===== INICIO / HOME ===== -->
     <section class="screen is-active" id="screen-home">
-      <p class="eyebrow" data-i18n="daily">Reto del día</p>
-      <h1 class="question" data-i18n="homeTitle">¿Hasta dónde llegarás hoy?</h1>
-      <p class="home-cats" id="homeCats"></p>
+      <div class="home-top">
+        <h1 class="hero__title">ABISAL</h1>
+        <div class="home-intro">
+          <p class="eyebrow" data-i18n="daily">Reto del día</p>
+          <h2 class="question" data-i18n="homeTitle">¿Hasta dónde llegarás hoy?</h2>
+          <p class="home-cats" id="homeCats"></p>
+        </div>
+      </div>
+
+      <div class="home-actions">
+        <button class="btn btn--primary" id="btnDaily" data-i18n="startDaily" disabled>Sumergirse ↓</button>
+        <button class="btn btn--secondary" id="btnRandom" data-i18n="startRandom" disabled>Aleatoria 🎲</button>
+      </div>
+      <p class="next-q"><span data-i18n="nextQ">Nuevo reto en</span> <span id="countdown">--:--:--</span></p>
 
       <div class="card rules">
         <p data-i18n-html="rulesIntro"></p>
@@ -55,62 +75,59 @@
         <div class="stat"><span class="stat__label" data-i18n="today">Hoy</span><span class="stat__value" id="statToday">0 m</span></div>
         <div class="stat"><span class="stat__label" data-i18n="streak">Racha</span><span class="stat__value" id="statStreak">0</span></div>
       </div>
-
-      <div class="home-actions">
-        <button class="btn btn--primary" id="btnDaily" data-i18n="startDaily" disabled>Sumergirse ↓</button>
-        <button class="btn btn--secondary" id="btnRandom" data-i18n="startRandom" disabled>Aleatoria 🎲</button>
-      </div>
-      <p class="next-q"><span data-i18n="nextQ">Nuevo reto en</span> <span id="countdown">--:--:--</span></p>
       <p class="bank-info" id="bankInfo"></p>
     </section>
 
     <!-- ===== JUEGO / GAME ===== -->
     <section class="screen" id="screen-game" aria-labelledby="gameQuestion">
       <div class="hud">
-        <span class="hud__round"><span data-i18n="dive">Pregunta</span> <b id="roundNum">1</b>/<b id="roundTotal">7</b></span>
-        <span class="eyebrow" id="gameCategory"></span>
-      </div>
-
-      <div class="timer-row" id="timerRow">
-        <div class="timer"><div class="timer__bar" id="timerBar"></div></div>
-        <span class="timer__text" id="timerText" role="timer">25</span>
-      </div>
-
-      <h2 class="question question--game" id="gameQuestion"></h2>
-
-      <div class="card sonar" id="sonar">
-        <div class="sonar__info">
-          <span class="sonar__zone" id="zoneName"></span>
+        <div class="card hud__panel sonar" id="sonar">
           <div class="sonar__depth"><span id="depthValue">0</span><small>m</small></div>
+          <span class="sonar__zone" id="zoneName"></span>
+          <div class="gauge" aria-hidden="true"><div class="gauge__diver" id="gaugeDiver"></div></div>
         </div>
-        <div class="gauge" aria-hidden="true"><div class="gauge__diver" id="gaugeDiver"></div></div>
+        <div class="card hud__panel hud__progress">
+          <ol class="dots" id="answerList" data-i18n-aria="progressAria"></ol>
+          <span class="hud__round"><span data-i18n="dive">Pregunta</span> <b id="roundNum">1</b> / <b id="roundTotal">7</b></span>
+        </div>
       </div>
 
-      <ol class="dots" id="answerList" data-i18n-aria="progressAria"></ol>
+      <div class="card qcard">
+        <p class="qcard__label" id="gameCategory"></p>
+        <h2 class="question question--game" id="gameQuestion"></h2>
+        <p class="qcard__hint">▼ ▼ ▼</p>
+      </div>
+
+      <div class="spacer"></div>
 
       <div class="card reveal" id="reveal" role="status" aria-live="polite" hidden>
         <p class="reveal__verdict" id="revealVerdict"></p>
         <p class="reveal__best" id="revealBest"></p>
       </div>
 
-      <form class="answer-form" id="answerForm" autocomplete="off">
-        <input id="answerInput" type="text" inputmode="text" autocapitalize="off" autocorrect="off"
-               spellcheck="false" enterkeyhint="send" maxlength="40"
-               data-i18n-ph="placeholder" data-i18n-aria="answerAria">
-        <button class="btn btn--send" type="submit" data-i18n-aria="send">↓</button>
-      </form>
-
-      <button class="btn btn--primary btn--next" id="btnNext" type="button" hidden></button>
+      <div class="controls timer-row" id="timerRow">
+        <div class="ring"><span class="timer__text" id="timerText" role="timer">25</span></div>
+        <form class="answer-form" id="answerForm" autocomplete="off">
+          <input id="answerInput" type="text" inputmode="text" autocapitalize="off" autocorrect="off"
+                 spellcheck="false" enterkeyhint="send" maxlength="40"
+                 data-i18n-ph="placeholder" data-i18n-aria="answerAria">
+          <button class="btn btn--send" type="submit" data-i18n-aria="send">↓</button>
+        </form>
+        <button class="btn btn--primary btn--next" id="btnNext" type="button" hidden></button>
+        <div class="timer"><div class="timer__bar" id="timerBar"></div></div>
+      </div>
     </section>
 
     <!-- ===== RESULTADOS / RESULTS ===== -->
     <section class="screen" id="screen-results" aria-labelledby="resultTitle">
-      <p class="eyebrow" id="resultTitle" data-i18n="resultTitle">Resultado</p>
-      <div class="result-depth"><span id="resultMeters">0</span><small>m</small></div>
-      <p class="result-zone" id="resultZone"></p>
-      <div class="result-tags">
-        <span class="rarity-pill" id="resultRarity">—</span>
-        <span class="badge" id="newRecord" data-i18n="newRecord" hidden></span>
+      <div class="card result-head">
+        <p class="eyebrow" id="resultTitle" data-i18n="resultTitle">Resultado</p>
+        <div class="result-depth"><span id="resultMeters">0</span><small>m</small></div>
+        <p class="result-zone" id="resultZone"></p>
+        <div class="result-tags">
+          <span class="rarity-pill" id="resultRarity">—</span>
+          <span class="badge" id="newRecord" data-i18n="newRecord" hidden></span>
+        </div>
       </div>
 
       <div class="card">
@@ -139,6 +156,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="./generator.js" defer></script>
+  <script src="./scene.js" defer></script>
   <script src="./app.js" defer></script>
 </body>
 </html>
