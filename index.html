@@ -48,26 +48,15 @@
       <div class="home-top">
         <h1 class="hero__title">ABISAL</h1>
         <div class="home-intro">
-          <p class="eyebrow" data-i18n="daily">Reto del día</p>
-          <h2 class="question" data-i18n="homeTitle">¿Hasta dónde llegarás hoy?</h2>
+          <p class="eyebrow" data-i18n="newDive">Nueva inmersión</p>
+          <h2 class="question" data-i18n="homeTitle">¿Hasta dónde llegarás?</h2>
           <p class="home-cats" id="homeCats"></p>
         </div>
       </div>
 
       <div class="home-actions">
-        <button class="btn btn--primary" id="btnDaily" data-i18n="startDaily" disabled>Sumergirse ↓</button>
-        <button class="btn btn--secondary" id="btnRandom" data-i18n="startRandom" disabled>Aleatoria 🎲</button>
-      </div>
-      <p class="next-q"><span data-i18n="nextQ">Nuevo reto en</span> <span id="countdown">--:--:--</span></p>
-
-      <div class="card rules">
-        <p data-i18n-html="rulesIntro"></p>
-        <ul>
-          <li data-i18n-html="rule1"></li>
-          <li data-i18n-html="rule2"></li>
-          <li data-i18n-html="rule3"></li>
-          <li data-i18n-html="rule4"></li>
-        </ul>
+        <button class="btn btn--primary" id="btnPlay" data-i18n="startDive" disabled>Sumergirse ↓</button>
+        <button class="btn btn--secondary" id="btnHistory" data-i18n="history" disabled>Inmersiones anteriores</button>
       </div>
 
       <div class="stats-row">
@@ -99,6 +88,8 @@
       </div>
 
       <div class="spacer"></div>
+
+      <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
 
       <div class="card reveal" id="reveal" role="status" aria-live="polite" hidden>
         <p class="reveal__verdict" id="revealVerdict"></p>
@@ -149,6 +140,18 @@
           <button class="btn btn--ghost" id="btnShare" data-i18n="share">Compartir</button>
           <button class="btn btn--ghost" id="btnHome" data-i18n="home">Inicio</button>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== HISTORIAL / HISTORY ===== -->
+    <section class="screen" id="screen-history">
+      <div class="card">
+        <h3 class="card__title" data-i18n="history">Inmersiones anteriores</h3>
+        <p class="hint" id="historyEmpty" data-i18n="historyEmpty" hidden></p>
+        <ol class="history" id="historyList"></ol>
+      </div>
+      <div class="actions">
+        <button class="btn btn--ghost" id="btnHistoryBack" data-i18n="back">← Volver</button>
       </div>
     </section>
   </main>
