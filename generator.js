@@ -33,7 +33,7 @@
     return { es: list(es), en: list(en ?? es) };
   }
 
-  const metersFor = (i, n) => (n < 2 ? 10 : Math.max(10, Math.round((10 + 3590 * Math.pow(i / (n - 1), 1.35)) / 10) * 10));
+    const metersFor = (i, n) => (n < 2 ? 10 : Math.max(10, Math.round((10 + 1560 * Math.pow(i / (n - 1), 1.35)) / 10) * 10));
 
   function rng(seed) {
     let a = seed >>> 0;
