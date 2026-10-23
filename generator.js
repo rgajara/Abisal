@@ -225,4 +225,121 @@
     { id: 'sports', data: SPORTS, cat: { es: 'Deportes', en: 'Sports' }, es: { a: 'un', noun: 'deporte' }, en: { a: 'a', noun: 'sport' } },
     { id: 'instruments', data: INSTRUMENTS, cat: { es: 'Música', en: 'Music' }, es: { a: 'un', noun: 'instrumento musical' }, en: { a: 'a', noun: 'musical instrument' } },
     { id: 'body', data: BODY, cat: { es: 'Cuerpo humano', en: 'Human body' }, es: { a: 'una', noun: 'parte del cuerpo humano' }, en: { a: 'a', noun: 'part of the human body' } },
-    { id: 'home', data: HOME, cat: { es: 'Hogar', en: 'Home' }, es: { a: 'un', noun: 'objeto de la casa' }, en: {
+        { id: 'home', data: HOME, cat: { es: 'Hogar', en: 'Home' }, es: { a: 'un', noun: 'objeto de la casa' }, en: { a: 'a', noun: 'household object' } },
+    { id: 'languages', data: LANGS, cat: { es: 'Idiomas', en: 'Languages' }, es: { a: 'un', noun: 'idioma' }, en: { a: 'a', noun: 'language' } },
+    { id: 'elements', symbols: true, data: ELEMENTS, cat: { es: 'Ciencia', en: 'Science' }, es: { a: 'un', noun: 'elemento químico' }, en: { a: 'a', noun: 'chemical element' } },
+  ];
+
+  // ================= CONSTRUCCIÓN =================
+  const VERBS = { es: ['Nombra', 'Di', 'Menciona', 'Escribe'], en: ['Name', 'Give me', 'Think of', 'Type'] };
+  const RARE = { es: ['z', 'j', 'ñ', 'x', 'k', 'v', 'w', 'll', 'q', 'h'], en: ['z', 'j', 'x', 'k', 'q', 'v', 'w', 'y', 'ph', 'sh'] };
+  const MIN = 6;
+  const cache = {};
+
+  function parseBank(b) {
+    const items = b.data.map((line) => {
+      const [n, tag = '', extra] = line.split('|');
+      return { names: parseNames(n), tag, extra: extra ? parseNames(extra) : null };
+    });
+    const group = (it) => (b.grouped ? it.tag : '');
+    const total = {}; const seen = {};
+    items.forEach((it) => { total[group(it)] = (total[group(it)] || 0) + 1; });
+    items.forEach((it) => {
+      const k = group(it);
+      seen[k] = (seen[k] ?? -1) + 1;
+      it.pop = total[k] > 1 ? seen[k] / (total[k] - 1) : 0;
+    });
+    return items;
+  }
+
+  const letters = (s) => plain(s).replace(/[^a-zñ]/g, '');
+  const firstLetter = (s) => letters(s)[0] || '';
+
+  function buildPool(lang) {
+    if (cache[lang]) return cache[lang];
+    const out = [];
+    const q = (s) => (lang === 'es' ? `«${s.toUpperCase()}»` : `“${s.toUpperCase()}”`);
+
+    const add = (id, cat, tail, entries, min = MIN) => {
+      const list = entries.filter(Boolean);
+      if (list.length < min) return;
+      list.sort((a, b) => a.pop - b.pop);
+      const n = list.length;
+      out.push({
+        id, source: 'gen', category: cat,
+        prompt: `${VERBS[lang][hash(id) % VERBS[lang].length]} ${tail}`,
+        answers: list.map((e, i) => ({ id: i, text: e.text, keys: e.keys, meters: metersFor(i, n) })),
+      });
+    };
+    const agn = (it, names = it.names) => ({ text: names[lang][0], keys: keysOf([...names.es, ...names.en]), pop: it.pop });
+    const spec = (it, pred) => {
+      const ok = it.names[lang].filter(pred);
+      return ok.length ? { text: ok[0], keys: keysOf(ok), pop: it.pop } : null;
+    };
+
+    for (const b of BANKS) {
+      const items = b.items || (b.items = parseBank(b));
+      const W = b[lang];
+      const cat = b.cat[lang];
+      const noun = `${W.a} ${W.noun}`;
+      const base = `g:${lang}:${b.id}`;
+      const n = items.length;
+
+      add(`${base}:all`, cat, noun, items.map((it) => agn(it)));
+
+      const initials = new Set(items.flatMap((it) => it.names[lang].map(firstLetter)).filter(Boolean));
+      for (const L of initials) {
+        const entries = items.map((it) => spec(it, (nm) => firstLetter(nm) === L)).filter(Boolean);
+        if (entries.length > n * 0.6) continue;
+        add(`${base}:start:${L}`, cat, lang === 'es' ? `${noun} que empiece por ${q(L)}` : `${noun} that starts with ${q(L)}`, entries);
+      }
+
+      for (let len = 3; len <= 14; len++) {
+        const entries = items.map((it) => spec(it, (nm) => letters(nm).length === len)).filter(Boolean);
+        if (entries.length > n * 0.5) continue;
+        add(`${base}:len:${len}`, cat, lang === 'es' ? `${noun} de exactamente ${len} letras` : `${noun} with exactly ${len} letters`, entries);
+      }
+
+      for (const L of RARE[lang]) {
+        const entries = items.map((it) => spec(it, (nm) => letters(nm).includes(L))).filter(Boolean);
+        if (entries.length > n * 0.6) continue;
+        add(`${base}:has:${L}`, cat, lang === 'es' ? `${noun} que lleve ${q(L)}` : `${noun} containing ${q(L)}`, entries);
+      }
+
+      if (b.groups) {
+        for (const [tag, label] of Object.entries(b.groups)) {
+          const grp = items.filter((it) => it.tag === tag);
+          add(`${base}:grp:${tag}`, cat, label[lang], grp.map((it) => agn(it)));
+          if (!b.groupLetters) continue;
+          const ini = new Set(grp.flatMap((it) => it.names[lang].map(firstLetter)).filter(Boolean));
+          for (const L of ini) {
+            const entries = grp.map((it) => spec(it, (nm) => firstLetter(nm) === L));
+            add(`${base}:grp:${tag}:${L}`, cat, lang === 'es' ? `${label[lang]} que empiece por ${q(L)}` : `${label[lang]} that starts with ${q(L)}`, entries, 5);
+          }
+        }
+      }
+
+      if (b.capitals) {
+        for (const [tag, label] of Object.entries(b.capitals)) {
+          const grp = items.filter((it) => it.extra && (tag === 'all' || it.tag === tag));
+          add(`${base}:cap:${tag}`, b.capCat[lang], label[lang], grp.map((it) => agn(it, it.extra)));
+        }
+      }
+
+      if (b.symbols) {
+        add(`${base}:sym1`, cat, lang === 'es' ? `${noun} cuyo símbolo sea una sola letra` : `${noun} whose symbol is a single letter`,
+          items.filter((it) => it.tag.length === 1).map((it) => agn(it)));
+        for (const S of new Set(items.map((it) => it.tag[0]))) {
+          add(`${base}:sym:${S}`, cat, lang === 'es' ? `${noun} cuyo símbolo empiece por ${q(S)}` : `${noun} whose symbol starts with ${q(S)}`,
+            items.filter((it) => it.tag[0] === S).map((it) => agn(it)), 5);
+        }
+      }
+    }
+
+    out.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    cache[lang] = out;
+    return out;
+  }
+
+  global.AbisalGen = { buildPool, toKeys, keysOf, parseNames, metersFor, rng, plain };
+})(window);
