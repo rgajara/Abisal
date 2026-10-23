@@ -35,9 +35,10 @@
     </header>
 
     <!-- ===== INICIO / HOME ===== -->
-    <section class="screen is-active" id="screen-home" aria-labelledby="homeQuestion">
-      <p class="eyebrow"><span data-i18n="daily">Pregunta del día</span> · <span id="homeCategory">—</span></p>
-      <h1 class="question" id="homeQuestion">…</h1>
+    <section class="screen is-active" id="screen-home">
+      <p class="eyebrow" data-i18n="daily">Reto del día</p>
+      <h1 class="question" data-i18n="homeTitle">¿Hasta dónde llegarás hoy?</h1>
+      <p class="home-cats" id="homeCats"></p>
 
       <div class="card rules">
         <p data-i18n-html="rulesIntro"></p>
@@ -59,14 +60,14 @@
         <button class="btn btn--primary" id="btnDaily" data-i18n="startDaily" disabled>Sumergirse ↓</button>
         <button class="btn btn--secondary" id="btnRandom" data-i18n="startRandom" disabled>Aleatoria 🎲</button>
       </div>
-      <p class="next-q"><span data-i18n="nextQ">Nueva pregunta en</span> <span id="countdown">--:--:--</span></p>
+      <p class="next-q"><span data-i18n="nextQ">Nuevo reto en</span> <span id="countdown">--:--:--</span></p>
       <p class="bank-info" id="bankInfo"></p>
     </section>
 
     <!-- ===== JUEGO / GAME ===== -->
     <section class="screen" id="screen-game" aria-labelledby="gameQuestion">
       <div class="hud">
-        <span class="hud__round"><span data-i18n="dive">Inmersión</span> <b id="roundNum">1</b>/<b id="roundTotal">3</b></span>
+        <span class="hud__round"><span data-i18n="dive">Pregunta</span> <b id="roundNum">1</b>/<b id="roundTotal">7</b></span>
         <span class="eyebrow" id="gameCategory"></span>
       </div>
 
@@ -85,8 +86,12 @@
         <div class="gauge" aria-hidden="true"><div class="gauge__diver" id="gaugeDiver"></div></div>
       </div>
 
-      <ul class="chips" id="answerList" data-i18n-aria="answersAria"></ul>
-      <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+      <ol class="dots" id="answerList" data-i18n-aria="progressAria"></ol>
+
+      <div class="card reveal" id="reveal" role="status" aria-live="polite" hidden>
+        <p class="reveal__verdict" id="revealVerdict"></p>
+        <p class="reveal__best" id="revealBest"></p>
+      </div>
 
       <form class="answer-form" id="answerForm" autocomplete="off">
         <input id="answerInput" type="text" inputmode="text" autocapitalize="off" autocorrect="off"
@@ -94,6 +99,8 @@
                data-i18n-ph="placeholder" data-i18n-aria="answerAria">
         <button class="btn btn--send" type="submit" data-i18n-aria="send">↓</button>
       </form>
+
+      <button class="btn btn--primary btn--next" id="btnNext" type="button" hidden></button>
     </section>
 
     <!-- ===== RESULTADOS / RESULTS ===== -->
