@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "format": "answers: 'español=english' (sinónimos con /), ordenadas de la más común a la más rara",
+  "questions": [
+    {
+      "id": "planetas",
+      "category": { "es": "Astronomía", "en": "Astronomy" },
+      "prompt": { "es": "Nombra un planeta o planeta enano del sistema solar", "en": "Name a planet or dwarf planet in the solar system" },
+      "answers": ["Tierra=Earth", "Marte=Mars", "Júpiter=Jupiter", "Saturno=Saturn", "Venus", "Mercurio=Mercury", "Neptuno=Neptune", "Urano=Uranus", "Plutón=Pluto", "Ceres", "Eris", "Haumea", "Makemake"]
+    },
+    {
+      "id": "animales-oceano",
+      "category": { "es": "Vida marina", "en": "Marine life" },
+      "prompt": { "es": "Nombra un animal que viva en el océano", "en": "Name an animal that lives in the ocean" },
+      "answers": ["Tiburón=Shark", "Ballena=Whale", "Delfín=Dolphin", "Pulpo=Octopus", "Medusa=Jellyfish", "Orca=Orca/Killer whale", "Pez payaso=Clownfish", "Tortuga marina/Tortuga=Sea turtle/Turtle", "Estrella de mar=Starfish/Sea star", "Calamar=Squid", "Foca=Seal", "Caballito de mar=Seahorse", "Mantarraya/Manta raya/Raya=Manta ray/Stingray/Ray", "Morsa=Walrus", "Narval=Narwhal", "Rape/Pez abisal=Anglerfish", "Dugongo=Dugong", "Pez gota=Blobfish", "Isópodo gigante=Giant isopod", "Calamar vampiro=Vampire squid"]
+    },
+    {
+      "id": "ingredientes-pizza",
+      "category": { "es": "Comida", "en": "Food" },
+      "prompt": { "es": "Nombra un ingrediente que le pondrías a una pizza", "en": "Name a topping you'd put on a pizza" },
+      "answers": ["Queso=Cheese", "Tomate/Salsa de tomate=Tomato/Tomato sauce", "Pepperoni", "Jamón=Ham", "Mozzarella", "Champiñones/Hongos=Mushrooms", "Piña=Pineapple", "Aceitunas=Olives", "Cebolla=Onion", "Pimiento/Pimentón=Bell pepper/Pepper", "Salami", "Tocino/Bacon/Panceta=Bacon", "Albahaca=Basil", "Chorizo", "Rúcula=Arugula/Rocket", "Anchoas=Anchovies", "Alcachofa=Artichoke", "Higo=Fig", "Trufa=Truffle"]
+    },
+    {
+      "id": "marcas-autos",
+      "category": { "es": "Motor", "en": "Cars" },
+      "prompt": { "es": "Nombra una marca de autos", "en": "Name a car brand" },
+      "answers": ["Toyota", "Ford", "Chevrolet/Chevy", "BMW", "Mercedes-Benz/Mercedes", "Volkswagen/VW", "Honda", "Nissan", "Ferrari", "Audi", "Hyundai", "Tesla", "Kia", "Jeep", "Porsche", "Lamborghini", "Mazda", "Suzuki", "Peugeot", "Renault", "Fiat", "Volvo", "Mitsubishi", "Subaru", "Jaguar", "Land Rover", "Mini", "Citroën/Citroen", "Maserati", "Bugatti", "Alfa Romeo", "Seat", "Škoda/Skoda", "Lada", "Dacia", "Lotus", "Saab", "Tata", "Koenigsegg", "Pagani", "Lancia", "Rimac", "Trabant"]
+    },
+    {
+      "id": "maravillas",
+      "category": { "es": "Historia", "en": "History" },
+      "prompt": { "es": "Nombra una de las maravillas del mundo (antiguas o modernas)", "en": "Name one of the Wonders of the World (ancient or new)" },
+      "answers": ["Pirámides de Egipto/Gran Pirámide de Guiza/Pirámides=Pyramids of Giza/Great Pyramid of Giza/Pyramids", "Machu Picchu", "Gran Muralla China/Muralla China=Great Wall of China/Great Wall", "Taj Mahal", "Coliseo/Coliseo romano=Colosseum/Coliseum", "Chichén Itzá=Chichen Itza", "Cristo Redentor=Christ the Redeemer", "Petra", "Jardines Colgantes de Babilonia=Hanging Gardens of Babylon", "Coloso de Rodas=Colossus of Rhodes", "Faro de Alejandría=Lighthouse of Alexandria", "Estatua de Zeus/Estatua de Zeus en Olimpia=Statue of Zeus/Statue of Zeus at Olympia", "Templo de Artemisa=Temple of Artemis", "Mausoleo de Halicarnaso=Mausoleum at Halicarnassus/Mausoleum of Halicarnassus"]
+    },
+    {
+      "id": "monedas",
+      "category": { "es": "Economía", "en": "Economy" },
+      "prompt": { "es": "Nombra una moneda oficial de algún país", "en": "Name an official currency of any country" },
+      "answers": ["Dólar=Dollar", "Euro", "Peso", "Libra/Libra esterlina=Pound/Pound sterling", "Yen", "Sol", "Real", "Yuan/Renminbi", "Rublo=Ruble/Rouble", "Rupia=Rupee", "Franco=Franc", "Lira", "Bolívar=Bolivar/Bolívar", "Won", "Corona=Krona/Krone/Crown", "Rand", "Dírham=Dirham", "Séquel/Shekel=Shekel", "Baht", "Zloty/Esloti=Zloty", "Forinto=Forint", "Dong", "Kwanza", "Tugrik", "Ngultrum"]
+    },
+    {
+      "id": "constelaciones",
+      "category": { "es": "Astronomía", "en": "Astronomy" },
+      "prompt": { "es": "Nombra una constelación", "en": "Name a constellation" },
+      "answers": ["Osa Mayor=Ursa Major/Big Dipper/Great Bear", "Orión=Orion", "Osa Menor=Ursa Minor/Little Dipper", "Cruz del Sur=Southern Cross/Crux", "Escorpio/Escorpión=Scorpius/Scorpio", "Leo", "Géminis=Gemini", "Tauro=Taurus", "Sagitario=Sagittarius", "Aries", "Virgo", "Libra", "Acuario=Aquarius", "Piscis=Pisces", "Capricornio=Capricornus/Capricorn", "Cáncer=Cancer", "Casiopea=Cassiopeia", "Andrómeda=Andromeda", "Pegaso=Pegasus", "Perseo=Perseus", "Can Mayor=Canis Major", "Cisne=Cygnus", "Lira=Lyra", "Centauro=Centaurus", "Dragón=Draco", "Camaleón=Chamaeleon", "Microscopio=Microscopium", "Mesa=Mensa"]
+    },
+    {
+      "id": "dinosaurios",
+      "category": { "es": "Prehistoria", "en": "Prehistory" },
+      "prompt": { "es": "Nombra un dinosaurio", "en": "Name a dinosaur" },
+      "answers": ["Tiranosaurio/T-rex/Tiranosaurio rex=Tyrannosaurus/T-rex/T. rex", "Velociraptor", "Triceratops", "Estegosaurio=Stegosaurus", "Braquiosaurio=Brachiosaurus", "Diplodocus", "Espinosaurio=Spinosaurus", "Anquilosaurio=Ankylosaurus", "Parasaurolophus", "Iguanodonte=Iguanodon", "Alosaurio=Allosaurus", "Carnotauro/Carnotaurus=Carnotaurus", "Argentinosaurio=Argentinosaurus", "Dilofosaurio=Dilophosaurus", "Paquicefalosaurio=Pachycephalosaurus", "Giganotosaurio=Giganotosaurus", "Compsognathus", "Terizinosaurio=Therizinosaurus", "Microraptor", "Amargasaurio=Amargasaurus", "Nigersaurio=Nigersaurus", "Mamenchisaurio=Mamenchisaurus"]
+    },
+    {
+      "id": "juegos-mesa",
+      "category": { "es": "Juegos", "en": "Games" },
+      "prompt": { "es": "Nombra un juego de mesa", "en": "Name a board game" },
+      "answers": ["Ajedrez=Chess", "Monopoly", "Damas=Checkers/Draughts", "Ludo/Parchís=Ludo/Parcheesi", "Dominó=Dominoes", "Scrabble", "Clue/Cluedo", "Serpientes y escaleras=Snakes and Ladders/Chutes and Ladders", "Risk", "Batalla naval=Battleship", "Pictionary", "Twister", "Catan/Colonos de Catán=Catan/Settlers of Catan", "Trivial Pursuit", "Backgammon", "Mahjong", "Go", "Carcassonne", "Aventureros al tren=Ticket to Ride", "Pandemic", "Stratego", "Mancala", "Shogi", "Senet", "Hnefatafl"]
+    },
+    {
+      "id": "rios",
+      "category": { "es": "Geografía", "en": "Geography" },
+      "prompt": { "es": "Nombra un río", "en": "Name a river" },
+      "answers": ["Amazonas=Amazon", "Nilo=Nile", "Misisipi=Mississippi", "Támesis=Thames", "Danubio=Danube", "Sena=Seine", "Ganges", "Yangtsé=Yangtze", "Rin=Rhine", "Orinoco", "Colorado", "Paraná", "Volga", "Congo", "Éufrates=Euphrates", "Tigris", "Jordán=Jordan", "Mekong", "Ebro", "Loira=Loire", "Yukón=Yukon", "Okavango", "Lena", "Amur", "Mackenzie", "Irawadi=Irrawaddy", "Ob", "Yeniséi=Yenisei", "Purús=Purus"]
+    }
+  ]
+}
